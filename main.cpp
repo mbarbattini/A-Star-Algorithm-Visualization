@@ -3,6 +3,7 @@
 #include <cmath>
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <unistd.h>
 
 using namespace std;
 using namespace sf;
@@ -11,8 +12,8 @@ using namespace sf;
 #include "Spot.h"
 
 // dimensions of the grid
-const int numberRows = 50;
-const int numberCols = 50;
+const int numberRows = 75;
+const int numberCols = 75;
 const int spotSize = 20;
 
 void removeFromVector(vector<Spot*>& vec, Spot* search) {
@@ -38,11 +39,10 @@ bool search(vector<Spot*> vec, Spot* object) {
 
 // heuristic is a function that estimates the distance between the node and the end
 int heuristic(Spot* from, Spot* to) {
-//  int horizontal = abs(end.x - x);
-//  int vertical = abs(end.y - y);
-//  int distance = sqrt(pow(horizontal, 2) + pow(vertical, 2));
-    int distance = abs(to->getx() - from->getx()) + abs(to->gety() - from->gety());
-    return distance;
+  int horizontal = abs(from->getx() - to->getx());
+  int vertical = abs(from->gety() - to->gety());
+  int distance = sqrt(pow(horizontal, 2) + pow(vertical, 2));
+  return distance;
 }
 
 int main() {
@@ -78,9 +78,11 @@ int main() {
 
     // starting spot
     Spot* start = &gridVector.at(0).at(0);
+    start->setWall(false);
 
     // ending spot
     Spot* end = &gridVector.at(numberCols - 1).at(numberRows - 1);
+    end->setWall(false);
 
     // create the window
     RenderWindow window(VideoMode(numberRows * spotSize, numberCols * spotSize), "A* Algorithm");
@@ -116,7 +118,8 @@ int main() {
             // if the next best step is the end, then the algorithm is complete
             if (current->getx() == end->getx() && current->gety() == end->gety()) {
                 cout << "COMPLETED!" << endl;
-//                Sleep(10000);
+                usleep(15000000);
+                return 0;
             }
 
             // if not, add the node to the closed set
@@ -136,26 +139,34 @@ int main() {
                     // temporary g score
                     int tempG = current->getg() + heuristic(neighbor, current);
                     // is the neighbor node already in the openSet?
+                    // assume that going to this neighbor is not the best option
+                    bool newPath = false;
                     if (search(openSet, neighbor)) {
                         // is this a better way to get to the node than the previous way?
                         // is the temporary g score lower than the  previous g score?
                         if (tempG < neighbor->getg()) {
                             // assign the better g score
                             neighbor->setg(tempG);
+                            // if so, then move to this neighbor and update the newPath
+                            newPath = true;
                         }
                     } else {
                         // if not in the openSet, then assign the neighbor the tempG score
                         neighbor->setg(tempG);
                         // add the neighbor to the openSet because it has been evaluated
                         openSet.push_back(neighbor);
+                        // was not in the openSet in the first place
+                        newPath = true;
                     }
-                    // update the h score of the neighbor node
-                    neighbor->seth(heuristic(neighbor, end));
-                    neighbor->setf(neighbor->getg() + neighbor->geth());
+                    // only if going to this neighbor results in the lowest cost
+                    if (newPath) {
+                        // update the h score of the neighbor node
+                        neighbor->seth(heuristic(neighbor, end));
+                        neighbor->setf(neighbor->getg() + neighbor->geth());
 
-                    // set the neighbor node's previous member pointer to the current node
-//                    Spot* currentPointer = &current;
-                    neighbors.at(i)->setPrevious(current);
+                        // set the neighbor node's previous member pointer to the current node
+                        neighbors.at(i)->setPrevious(current);
+                    }
                 }
             }
 
@@ -176,6 +187,7 @@ int main() {
         } else {
             // no solution if open set is equal to 0 and not done
             cerr << "No solution" << endl;
+            usleep(15000000);
             return -1;
         }
 
@@ -210,7 +222,7 @@ int main() {
         path.clear();
 
 
-//        Sleep(50);
+        usleep(50000);
     }
 
 }

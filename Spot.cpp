@@ -26,7 +26,7 @@ Spot::Spot(int xPos, int yPos) {
     h = 0;
     previous = nullptr;
     wall = false;
-    if ((rand() % 100 ) < 15) {
+    if ((rand() % 100 ) < 40) {
         wall = true;
     }
 }
@@ -104,17 +104,37 @@ void Spot::setWall(bool _v) {
 // pass in the entire array to have access to all possible neighbors
 // takes into account if the neighbor is on the edges and attempting to access outside of array
 void Spot::addNeighbors(vector< vector<Spot> > &gridArray, int col, int row) {
+    // middle right
     if (x < col - 1) {
         neighbors.push_back(&gridArray.at(x + 1).at(y));
     }
+    // middle left
     if (x > 0) {
         neighbors.push_back(&gridArray.at(x - 1).at(y));
     }
+    // middle top
     if (y < row - 1) {
         neighbors.push_back(&gridArray.at(x).at(y + 1));
     }
+    // middle bottom
     if (y > 0) {
         neighbors.push_back(&gridArray.at(x).at(y - 1));
+    }
+    // top left
+    if (x > 0 && y > 0) {
+        neighbors.push_back(&gridArray.at(x - 1).at(y - 1));
+    }
+    // top right
+    if (x < col - 1 && y > 0) {
+        neighbors.push_back(&gridArray.at(x + 1).at(y - 1));
+    }
+    // bottom right
+    if (x < col - 1 && y < row - 1) {
+        neighbors.push_back(&gridArray.at(x + 1).at(y + 1));
+    }
+    // bottom left
+    if (x > 0 && y < row - 1) {
+        neighbors.push_back(&gridArray.at(x - 1).at(y + 1));
     }
 }
 
