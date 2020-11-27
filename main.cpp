@@ -36,6 +36,15 @@ bool search(vector<Spot*> vec, Spot* object) {
     return false;
 }
 
+// heuristic is a function that estimates the distance between the node and the end
+int heuristic(Spot* from, Spot* to) {
+//  int horizontal = abs(end.x - x);
+//  int vertical = abs(end.y - y);
+//  int distance = sqrt(pow(horizontal, 2) + pow(vertical, 2));
+    int distance = abs(to->getx() - from->getx()) + abs(to->gety() - from->gety());
+    return distance;
+}
+
 int main() {
 
     srand(time(0));
@@ -71,12 +80,13 @@ int main() {
     Spot* start = &gridVector.at(0).at(0);
 
     // ending spot
-    Spot* end = &gridVector.at(numberCols - 1).at(numberRows - 35);
+    Spot* end = &gridVector.at(numberCols - 1).at(numberRows - 1);
 
     // create the window
     RenderWindow window(VideoMode(numberRows * spotSize, numberCols * spotSize), "A* Algorithm");
 
     // draw loop
+    openSet.push_back(start);
     while (window.isOpen()) {
         // close the window
         Event event;
@@ -90,7 +100,7 @@ int main() {
         // iterates through each Spot object in the openSet
         // if the openSet is greater than 0, then there are still possible paths to evaluate
         // immediately add the start to the open set because it is the only known node
-        openSet.push_back(start);
+
         if (openSet.size() > 0) {
             // updating the best next step based on f score
             int winnerIndex = 0;
@@ -106,8 +116,7 @@ int main() {
             // if the next best step is the end, then the algorithm is complete
             if (current->getx() == end->getx() && current->gety() == end->gety()) {
                 cout << "COMPLETED!" << endl;
-
-                return 0;
+//                Sleep(10000);
             }
 
             // if not, add the node to the closed set
@@ -123,9 +132,9 @@ int main() {
                 Spot* neighbor = neighbors.at(i);
                 // searching algorithm
                 // if the neighbor is not in the closedSet already
-                if (!search(closedSet, neighbor)) {
+                if (!search(closedSet, neighbor) && !neighbor->getWall()) {
                     // temporary g score
-                    int tempG = current->getg() + current->heuristic(end);
+                    int tempG = current->getg() + heuristic(neighbor, current);
                     // is the neighbor node already in the openSet?
                     if (search(openSet, neighbor)) {
                         // is this a better way to get to the node than the previous way?
@@ -141,7 +150,7 @@ int main() {
                         openSet.push_back(neighbor);
                     }
                     // update the h score of the neighbor node
-                    neighbor->seth(neighbor->heuristic(end));
+                    neighbor->seth(heuristic(neighbor, end));
                     neighbor->setf(neighbor->getg() + neighbor->geth());
 
                     // set the neighbor node's previous member pointer to the current node
@@ -157,12 +166,12 @@ int main() {
             // while the node has a previous node, we can construct the path
             // the start node will not have a previous
             // pointer land
-//            while (temp.getPrevious() != nullptr) {
-//                // add the previous node to the path
-//                path.push_back(*temp.getPrevious());
-//                // move to the previous node and repeat
-//                temp = *temp.getPrevious();
-//            }
+            while (temp->getPrevious() != nullptr) {
+                // add the previous node to the path
+                path.push_back(temp->getPrevious());
+                // move to the previous node and repeat
+                temp = temp->getPrevious();
+            }
 
         } else {
             // no solution if open set is equal to 0 and not done
@@ -197,6 +206,8 @@ int main() {
 
         // display the window
         window.display();
+
+        path.clear();
 
 
 //        Sleep(50);

@@ -131,12 +131,3 @@ void Spot::show(RenderWindow& window, int spotSize, Color color) {
     }
     window.draw(gridElement);
 }
-
-// heuristic is a function that estimates the distance between the node and the end
-int Spot::heuristic(Spot* end) {
-//  int horizontal = abs(end.x - x);
-//  int vertical = abs(end.y - y);
-//  int distance = sqrt(pow(horizontal, 2) + pow(vertical, 2));
-    int distance = abs(end->x - x) + abs(end->y - y);
-    return distance;
-}

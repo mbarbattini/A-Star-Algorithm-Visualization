@@ -30,7 +30,6 @@ public:
 
     void addNeighbors(vector< vector<Spot> >&, int, int);
     void show(RenderWindow&, int, Color);
-    int heuristic(Spot*);
 
 
 private:
