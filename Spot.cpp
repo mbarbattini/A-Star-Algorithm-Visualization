@@ -138,8 +138,6 @@ void Spot::addNeighbors(vector< vector<Spot> > &gridArray, int col, int row) {
     }
 }
 
-// 83d8a0
-
 void Spot::show(RenderWindow& window, int spotSize, Color color) {
     gridElement.setSize(Vector2f(spotSize - 1, spotSize - 1));
     gridElement.setOutlineThickness(1);

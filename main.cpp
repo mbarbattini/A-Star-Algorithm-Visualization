@@ -52,16 +52,16 @@ int main() {
     // create a 2D vector of spot objects
     vector< vector<Spot> > gridVector(numberRows, vector<Spot> (numberCols));
 
-    // open set vector
+    // open set vector of pointers
     vector<Spot*> openSet;
 
-    // closed set vector
+    // closed set vector of pointers
     vector<Spot*> closedSet;
 
-    // path vector
+    // path vector of pointers
     vector<Spot*> path;
 
-    // add all spot objects to the array
+    // add all spot objects to the vector
     for (int i = 0; i < numberCols; i++) {
         for (int j = 0; j < numberRows; j++) {
             Spot term(i, j);
@@ -76,16 +76,56 @@ int main() {
         }
     }
 
+    // create the starting window
+    RenderWindow window(VideoMode(numberRows * spotSize, numberCols * spotSize), "A* Algorithm");
+
+    // indexes of the starting node
+    int iStart = -1;
+    int jStart = -1;
+
+    while (window.isOpen()) {
+
+        // show the unevaluated window
+        for (int i = 0; i < numberCols; i++) {
+            for (int j = 0; j < numberRows; j++) {
+                gridVector.at(i).at(j).show(window, spotSize, Color(255, 255, 255));
+            }
+        }
+        // if the mouse is pressed
+        if (Mouse::isButtonPressed(Mouse::Left)) {
+            // record the position of the mouse
+            Vector2<int> mousePos = Mouse::getPosition(window);
+            // find which cell the user clicked on. Use int division because we need to use these numbers for indexes
+            iStart = mousePos.x / spotSize;
+            jStart = mousePos.y / spotSize;
+        }
+
+        // close the window
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed) {
+                window.close();
+            }
+        }
+
+        window.display();
+        // making sure the clicks are on the window
+        if (( iStart >= 0 ) && ( iStart < numberCols ) && ( jStart >= 0 ) && ( jStart < numberRows )) {
+            // end the loop and start the algorithm
+            break;
+        }
+    }
+
     // starting spot
-    Spot* start = &gridVector.at(0).at(0);
+    Spot* start = &gridVector.at(iStart).at(jStart);
     start->setWall(false);
 
     // ending spot
     Spot* end = &gridVector.at(numberCols - 1).at(numberRows - 1);
     end->setWall(false);
 
-    // create the window
-    RenderWindow window(VideoMode(numberRows * spotSize, numberCols * spotSize), "A* Algorithm");
+//    // create the window
+//    RenderWindow window(VideoMode(numberRows * spotSize, numberCols * spotSize), "A* Algorithm");
 
     // draw loop
     openSet.push_back(start);
